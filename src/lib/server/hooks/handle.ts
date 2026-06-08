@@ -153,12 +153,15 @@ export async function handleRequest({ event, resolve }: HandleInput): Promise<Re
 				}
 			}
 
+			// Always refresh the session cookie for anonymous users so the session
+			// persists across requests (required for self-hosted deployments without login).
+			// For logged-in users, only refresh on POST or login-related requests.
 			if (
+				!loginEnabled ||
 				event.request.method === "POST" ||
 				event.url.pathname.startsWith(`${base}/login`) ||
 				event.url.pathname.startsWith(`${base}/login/callback`)
 			) {
-				// if the request is a POST request or login-related we refresh the cookie
 				refreshSessionCookie(event.cookies, auth.secretSessionId);
 
 				await collections.sessions.updateOne(
