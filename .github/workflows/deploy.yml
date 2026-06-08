@@ -35,23 +35,27 @@ jobs:
             -t chat-ui:latest \
             .
 
-      - name: Stop old container
+      - name: Start services with docker-compose
         run: |
-          docker stop chat-ui || true
-          docker rm chat-ui || true
+          cd /opt/chat-ui
+          docker compose -f docker-compose.deploy.yml up -d mongo
+          docker compose -f docker-compose.deploy.yml up -d app
 
-      - name: Start new container
+      - name: Wait for MongoDB
         run: |
-          mkdir -p /opt/chat-ui/db
-          docker run -d \
-            --name chat-ui \
-            --restart unless-stopped \
-            -p 3000:3000 \
-            -v /opt/chat-ui/.env.local:/app/.env.local:ro \
-            -v /opt/chat-ui/db:/app/db \
-            chat-ui:${{ steps.commit.outputs.sha_short }}
+          for i in $(seq 1 20); do
+            if docker exec chat-ui-mongo mongosh --eval "db.adminCommand('ping')" --quiet 2>/dev/null; then
+              echo "MongoDB is ready (attempt $i)"
+              exit 0
+            fi
+            echo "Waiting for MongoDB... (attempt $i)"
+            sleep 2
+          done
+          echo "MongoDB did not start in time"
+          docker logs chat-ui-mongo
+          exit 1
 
-      - name: Wait for server
+      - name: Wait for app server
         run: |
           for i in $(seq 1 30); do
             if curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/ | grep -q "200"; then
@@ -74,3 +78,4 @@ jobs:
         run: |
           echo "Deployment failed! Check the logs above."
           docker logs chat-ui 2>&1 | tail -50
+          docker logs chat-ui-mongo 2>&1 | tail -20
