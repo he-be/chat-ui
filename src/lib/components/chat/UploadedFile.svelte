@@ -5,6 +5,7 @@
 	import CarbonDocumentBlank from "~icons/carbon/document-blank";
 	import CarbonDownload from "~icons/carbon/download";
 	import CarbonDocument from "~icons/carbon/document";
+	import CarbonPdf from "~icons/carbon/pdf";
 	import Modal from "../Modal.svelte";
 	import AudioPlayer from "../players/AudioPlayer.svelte";
 	import EosIconsLoading from "~icons/eos-icons/loading";
@@ -60,7 +61,9 @@
 	const isPlainText = (mime: string) =>
 		mime === "application/vnd.chatui.clipboard" || matchesAllowed(mime, TEXT_MIME_ALLOWLIST);
 
-	let isClickable = $derived(isImage(file.mime) || isPlainText(file.mime));
+	const isPdf = (mime: string) => mime === "application/pdf";
+
+	let isClickable = $derived(isImage(file.mime) || isPlainText(file.mime) || isPdf(file.mime));
 </script>
 
 {#if showModal && isClickable}
@@ -120,6 +123,33 @@
 							file.mime === "application/vnd.chatui.clipboard"}
 						class:font-mono={file.mime !== "text/plain" &&
 							file.mime !== "application/vnd.chatui.clipboard"}>{atob(file.value)}</pre>
+				{/if}
+			</div>
+		{:else if isPdf(file.mime)}
+			<div class="relative flex h-full w-full flex-col gap-2 p-4">
+				<div class="flex items-center gap-1">
+					<CarbonPdf />
+					<h3 class="text-lg font-semibold">{file.name}</h3>
+				</div>
+				<button
+					class="absolute right-4 top-4 text-xl text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white"
+					onclick={() => (showModal = false)}
+				>
+					<CarbonClose class="text-xl" />
+				</button>
+				<p class="text-sm text-gray-500">
+					PDF file — text will be extracted server-side for the model.
+				</p>
+				{#if file.type === "hash"}
+					<a
+						href={urlNotTrailing + "/output/" + file.value}
+						target="_blank"
+						rel="noopener noreferrer"
+						class="inline-flex items-center gap-1 text-sm text-blue-600 underline dark:text-blue-400"
+					>
+						<CarbonDownload class="size-4" />
+						Download PDF
+					</a>
 				{/if}
 			</div>
 		{/if}
@@ -189,6 +219,23 @@
 					{:else}
 						<dt class="text-xs text-gray-400">{file.mime}</dt>
 					{/if}
+				</dl>
+			</div>
+		{:else if isPdf(file.mime)}
+			<div
+				class="flex h-14 w-64 items-center gap-2 overflow-hidden rounded-xl border border-gray-200 bg-white p-2 dark:border-gray-800 dark:bg-gray-900 2xl:w-72"
+				class:file-hoverable={isClickable}
+			>
+				<div
+					class="grid size-10 flex-none place-items-center rounded-lg bg-gray-100 dark:bg-gray-800"
+				>
+					<CarbonPdf class="text-base text-gray-700 dark:text-gray-300" />
+				</div>
+				<dl class="flex flex-col items-start truncate leading-tight">
+					<dd class="text-sm">
+						{truncateMiddle(file.name, 28)}
+					</dd>
+					<dt class="text-xs text-gray-400">{file.mime}</dt>
 				</dl>
 			</div>
 		{:else if file.mime === "application/octet-stream"}

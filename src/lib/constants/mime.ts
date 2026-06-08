@@ -8,4 +8,6 @@ export const TEXT_MIME_ALLOWLIST = [
 	"application/csv",
 ] as const;
 
+export const PDF_MIME_ALLOWLIST = ["application/pdf"] as const;
+
 export const IMAGE_MIME_ALLOWLIST_DEFAULT = ["image/jpeg", "image/png"] as const;

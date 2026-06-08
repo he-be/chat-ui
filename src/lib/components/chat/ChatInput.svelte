@@ -7,12 +7,17 @@
 	import IconPlus from "~icons/lucide/plus";
 	import CarbonImage from "~icons/carbon/image";
 	import CarbonDocument from "~icons/carbon/document";
+	import CarbonPdf from "~icons/carbon/pdf";
 	import CarbonUpload from "~icons/carbon/upload";
 	import CarbonLink from "~icons/carbon/link";
 	import CarbonChevronRight from "~icons/carbon/chevron-right";
 	import CarbonClose from "~icons/carbon/close";
 	import UrlFetchModal from "./UrlFetchModal.svelte";
-	import { TEXT_MIME_ALLOWLIST, IMAGE_MIME_ALLOWLIST_DEFAULT } from "$lib/constants/mime";
+	import {
+		TEXT_MIME_ALLOWLIST,
+		IMAGE_MIME_ALLOWLIST_DEFAULT,
+		PDF_MIME_ALLOWLIST,
+	} from "$lib/constants/mime";
 	import MCPServerManager from "$lib/components/mcp/MCPServerManager.svelte";
 	import IconMCP from "$lib/components/icons/IconMCP.svelte";
 
@@ -90,9 +95,14 @@
 
 	function openFilePickerText() {
 		const textAccept =
-			mimeTypes.filter((m) => !(m === "image/*" || m.startsWith("image/"))).join(",") ||
-			TEXT_MIME_ALLOWLIST.join(",");
+			mimeTypes
+				.filter((m) => !(m === "image/*" || m.startsWith("image/") || m === "application/pdf"))
+				.join(",") || TEXT_MIME_ALLOWLIST.join(",");
 		openPickerWithAccept(textAccept);
+	}
+
+	function openFilePickerPdf() {
+		openPickerWithAccept(PDF_MIME_ALLOWLIST.join(","));
 	}
 
 	function openFilePickerImage() {
@@ -224,8 +234,9 @@
 		});
 	}
 
-	// Show file upload when any mime is allowed (text always; images if multimodal)
+	// Show file upload when any mime is allowed (text always; images if multimodal; pdf if self-hosted)
 	let showFileUpload = $derived(mimeTypes.length > 0);
+	let isPdfEnabled = $derived(mimeTypes.includes("application/pdf"));
 	let showNoTools = $derived(!showFileUpload);
 	let selectedServers = $derived(
 		$allMcpServers.filter((server) => $selectedServerIds.has(server.id))
@@ -347,6 +358,16 @@
 										</DropdownMenu.Item>
 									</DropdownMenu.SubContent>
 								</DropdownMenu.Sub>
+
+								{#if isPdfEnabled}
+									<DropdownMenu.Item
+										class="flex h-9 select-none items-center gap-1 rounded-md px-2 text-sm text-gray-700 data-[highlighted]:bg-gray-100 focus-visible:outline-none dark:text-gray-200 dark:data-[highlighted]:bg-white/10 sm:h-8"
+										onSelect={() => openFilePickerPdf()}
+									>
+										<CarbonPdf class="size-4 opacity-90 dark:opacity-80" />
+										Add PDF
+									</DropdownMenu.Item>
+								{/if}
 
 								<!-- MCP Servers submenu -->
 								<DropdownMenu.Sub>

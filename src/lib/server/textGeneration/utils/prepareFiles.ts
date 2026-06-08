@@ -3,6 +3,7 @@ import type { EndpointMessage } from "$lib/server/endpoints/endpoints";
 import type { OpenAI } from "openai";
 import { TEXT_MIME_ALLOWLIST } from "$lib/constants/mime";
 import type { makeImageProcessor } from "$lib/server/endpoints/images";
+import { getTextFromPdf } from "$lib/server/files/pdfTextExtractor";
 
 /**
  * Prepare chat messages for OpenAI-compatible multimodal payloads.
@@ -74,15 +75,31 @@ async function prepareFiles(
 	}
 
 	let textContent = "";
+	const textParts: string[] = [];
+
 	if (textFiles.length > 0) {
-		const textParts = await Promise.all(
+		const textFileParts = await Promise.all(
 			textFiles.map(async (file) => {
 				const content = Buffer.from(file.value, "base64").toString("utf-8");
 				return `<document name="${file.name}" type="${file.mime}">\n${content}\n</document>`;
 			})
 		);
-		textContent = textParts.join("\n\n");
+		textParts.push(...textFileParts);
 	}
+
+	const pdfFiles = files.filter((file) => file.mime === "application/pdf");
+	if (pdfFiles.length > 0) {
+		const pdfTextParts = await Promise.all(
+			pdfFiles.map(async (file) => {
+				const pdfBuffer = Buffer.from(file.value, "base64");
+				const text = await getTextFromPdf(pdfBuffer);
+				return `<document name="${file.name}" type="application/pdf">\n${text}\n</document>`;
+			})
+		);
+		textParts.push(...pdfTextParts);
+	}
+
+	textContent = textParts.join("\n\n");
 
 	return { imageParts, textContent };
 }
