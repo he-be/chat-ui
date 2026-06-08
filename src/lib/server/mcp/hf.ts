@@ -30,3 +30,12 @@ export const isExaMcpServer = (urlString: string): boolean => {
 		return false;
 	}
 };
+
+export const isTavilyMcpServer = (urlString: string): boolean => {
+	try {
+		const u = new URL(urlString);
+		return u.protocol === "https:" && u.hostname.toLowerCase() === "mcp.tavily.com";
+	} catch {
+		return false;
+	}
+};

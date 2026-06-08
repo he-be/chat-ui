@@ -22,6 +22,7 @@ import {
 	isStrictHfMcpLogin,
 	hasNonEmptyToken,
 	isExaMcpServer,
+	isTavilyMcpServer,
 } from "$lib/server/mcp/hf";
 import { buildImageRefResolver } from "./fileRefs";
 import { prepareMessagesWithFiles } from "$lib/server/textGeneration/utils/prepareFiles";
@@ -227,6 +228,32 @@ export async function* runMcpFlow({
 			});
 			if (overlayApplied.length > 0) {
 				logger.debug({ overlayApplied }, "[mcp] injected Exa API key to servers");
+			}
+		}
+	} catch {
+		// best-effort injection; continue if anything goes wrong
+	}
+
+	// Inject Tavily API key for mcp.tavily.com servers via URL param
+	try {
+		const tavilyApiKey = config.TAVILY_API_KEY;
+		if (hasNonEmptyToken(tavilyApiKey)) {
+			const overlayApplied: string[] = [];
+			servers = servers.map((s) => {
+				try {
+					if (isTavilyMcpServer(s.url)) {
+						const url = new URL(s.url);
+						if (!url.searchParams.has("tavilyApiKey")) {
+							url.searchParams.set("tavilyApiKey", tavilyApiKey);
+							overlayApplied.push(s.name);
+							return { ...s, url: url.toString() };
+						}
+					}
+				} catch {}
+				return s;
+			});
+			if (overlayApplied.length > 0) {
+				logger.debug({ overlayApplied }, "[mcp] injected Tavily API key to servers");
 			}
 		}
 	} catch {

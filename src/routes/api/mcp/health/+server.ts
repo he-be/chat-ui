@@ -6,7 +6,12 @@ import { config } from "$lib/server/config";
 import { logger } from "$lib/server/logger";
 import type { RequestHandler } from "./$types";
 import { isValidUrl, ssrfSafeFetch } from "$lib/server/urlSafety";
-import { isStrictHfMcpLogin, hasNonEmptyToken, isExaMcpServer } from "$lib/server/mcp/hf";
+import {
+	isStrictHfMcpLogin,
+	hasNonEmptyToken,
+	isExaMcpServer,
+	isTavilyMcpServer,
+} from "$lib/server/mcp/hf";
 
 interface HealthCheckRequest {
 	url: string;
@@ -65,6 +70,19 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		} catch {
 			// best-effort injection
 		}
+
+		// Inject Tavily API key for mcp.tavily.com servers via URL param
+		try {
+			const tavilyApiKey = config.TAVILY_API_KEY;
+			if (isTavilyMcpServer(finalUrl) && hasNonEmptyToken(tavilyApiKey)) {
+				const urlObj = new URL(finalUrl);
+				if (!urlObj.searchParams.has("tavilyApiKey")) {
+					urlObj.searchParams.set("tavilyApiKey", tavilyApiKey);
+					finalUrl = urlObj.toString();
+					logger.debug({}, "[MCP Health] injected Tavily API key");
+				}
+			}
+		} catch {}
 
 		const baseUrl = new URL(finalUrl);
 
