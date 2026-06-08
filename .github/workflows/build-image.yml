@@ -4,17 +4,6 @@ name: Build and Publish Image
 # Use deploy.yml for self-hosted deployment
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - "main"
-  pull_request:
-    branches:
-      - "*"
-    paths:
-      - "Dockerfile"
-      - "entrypoint.sh"
-  release:
-    types: [published, edited]
 
 jobs:
   build-and-publish-image-with-db:
