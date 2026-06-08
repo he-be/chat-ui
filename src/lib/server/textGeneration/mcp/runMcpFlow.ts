@@ -20,6 +20,7 @@ import type { TextGenerationContext } from "../types";
 import {
 	hasAuthHeader,
 	isStrictHfMcpLogin,
+	isHfMcpServer,
 	hasNonEmptyToken,
 	isExaMcpServer,
 	isTavilyMcpServer,
@@ -207,6 +208,35 @@ export async function* runMcpFlow({
 		}
 	} catch {
 		// best-effort overlay; continue if anything goes wrong
+	}
+
+	// Inject HF_MCP_TOKEN for self-hosted deployments (no OIDC login).
+	// This covers hf.co/mcp URLs that may or may not have ?login.
+	// Never override an explicit Authorization header.
+	try {
+		const hfMcpToken = config.HF_MCP_TOKEN;
+		if (hasNonEmptyToken(hfMcpToken)) {
+			const overlayApplied: string[] = [];
+			servers = servers.map((s) => {
+				try {
+					if (isHfMcpServer(s.url) && !hasAuthHeader(s.headers)) {
+						overlayApplied.push(s.name);
+						return {
+							...s,
+							headers: { ...(s.headers ?? {}), Authorization: `Bearer ${hfMcpToken}` },
+						};
+					}
+				} catch {
+					// ignore URL parse errors and leave server unchanged
+				}
+				return s;
+			});
+			if (overlayApplied.length > 0) {
+				logger.debug({ overlayApplied }, "[mcp] injected HF_MCP_TOKEN to servers");
+			}
+		}
+	} catch {
+		// best-effort injection; continue if anything goes wrong
 	}
 
 	// Inject Exa API key for mcp.exa.ai servers via URL param (mcp.exa.ai doesn't support headers)

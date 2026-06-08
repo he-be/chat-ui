@@ -7,6 +7,70 @@ export const mcpExamples: RouterExample[] = [
 		prompt: "Generate an image of a zebra in front of a volcanic eruption",
 	},
 	{
+		title: "Search ML papers",
+		prompt: "Search for recent papers on diffusion models for image generation",
+		followUps: [
+			{
+				title: "Compare architectures",
+				prompt: "Compare diffusion models vs GANs for image quality",
+			},
+			{
+				title: "Find code",
+				prompt: "Find the most cited paper and show me its implementation",
+			},
+		],
+	},
+	{
+		title: "Browse Spaces",
+		prompt: "Find Hugging Face Spaces that demonstrate real-time translation",
+		followUps: [
+			{
+				title: "Top rated",
+				prompt: "Show me the most liked translation Spaces",
+			},
+			{
+				title: "Docker-based",
+				prompt: "Filter for Spaces that use Docker runtime",
+			},
+		],
+	},
+	{
+		title: "Repository details",
+		prompt: "Get details about the meta-llama/Llama-3.1-8B model repository",
+		followUps: [
+			{
+				title: "Usage code",
+				prompt: "Show me how to load and run this model with the transformers library",
+			},
+			{
+				title: "Related models",
+				prompt: "Find other models in the same family",
+			},
+		],
+	},
+	{
+		title: "Search documentation",
+		prompt: "Search the Hugging Face docs for how to deploy a model with Inference Endpoints",
+	},
+	{
+		title: "Latest world news",
+		prompt: "What is the latest world news?",
+		followUps: [
+			{
+				title: "Tech focus",
+				prompt: "What about technology news?",
+			},
+			{
+				title: "San Francisco",
+				prompt: "What's happening in San Francisco?",
+			},
+			{
+				title: "vs last week",
+				prompt: "How does this compare to last week's news?",
+			},
+		],
+	},
+	{
 		title: "Latest world news",
 		prompt: "What is the latest world news?",
 		followUps: [

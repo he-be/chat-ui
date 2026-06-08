@@ -8,6 +8,7 @@ import type { RequestHandler } from "./$types";
 import { isValidUrl, ssrfSafeFetch } from "$lib/server/urlSafety";
 import {
 	isStrictHfMcpLogin,
+	isHfMcpServer,
 	hasNonEmptyToken,
 	isExaMcpServer,
 	isTavilyMcpServer,
@@ -105,6 +106,20 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			) {
 				headersRecord["Authorization"] = `Bearer ${jinaApiKey}`;
 				logger.debug({}, "[MCP Health] injected Jina API key");
+			}
+		} catch {}
+
+		// Inject HF_MCP_TOKEN for self-hosted deployments (no OIDC login).
+		// Covers all hf.co/mcp and huggingface.co/mcp URLs.
+		try {
+			const hfMcpToken = config.HF_MCP_TOKEN;
+			if (
+				isHfMcpServer(finalUrl) &&
+				hasNonEmptyToken(hfMcpToken) &&
+				!headersRecord["Authorization"]
+			) {
+				headersRecord["Authorization"] = `Bearer ${hfMcpToken}`;
+				logger.debug({}, "[MCP Health] injected HF_MCP_TOKEN");
 			}
 		} catch {}
 

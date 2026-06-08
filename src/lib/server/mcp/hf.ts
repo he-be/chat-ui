@@ -3,6 +3,17 @@
 export const hasAuthHeader = (h?: Record<string, string>) =>
 	!!h && Object.keys(h).some((k) => k.toLowerCase() === "authorization");
 
+export const isHfMcpServer = (urlString: string) => {
+	try {
+		const u = new URL(urlString);
+		const host = u.hostname.toLowerCase();
+		const allowedHosts = new Set(["hf.co", "huggingface.co"]);
+		return u.protocol === "https:" && allowedHosts.has(host) && u.pathname === "/mcp";
+	} catch {
+		return false;
+	}
+};
+
 export const isStrictHfMcpLogin = (urlString: string) => {
 	try {
 		const u = new URL(urlString);
