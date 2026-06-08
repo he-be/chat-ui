@@ -23,6 +23,7 @@ import {
 	hasNonEmptyToken,
 	isExaMcpServer,
 	isTavilyMcpServer,
+	isJinaMcpServer,
 } from "$lib/server/mcp/hf";
 import { buildImageRefResolver } from "./fileRefs";
 import { prepareMessagesWithFiles } from "$lib/server/textGeneration/utils/prepareFiles";
@@ -254,6 +255,34 @@ export async function* runMcpFlow({
 			});
 			if (overlayApplied.length > 0) {
 				logger.debug({ overlayApplied }, "[mcp] injected Tavily API key to servers");
+			}
+		}
+	} catch {
+		// best-effort injection; continue if anything goes wrong
+	}
+
+	// Inject Jina API key for mcp.jina.ai servers via Authorization header
+	try {
+		const jinaApiKey = config.JINA_API_KEY;
+		if (hasNonEmptyToken(jinaApiKey)) {
+			const overlayApplied: string[] = [];
+			servers = servers.map((s) => {
+				try {
+					if (isJinaMcpServer(s.url) && !hasAuthHeader(s.headers)) {
+						overlayApplied.push(s.name);
+						return {
+							...s,
+							headers: {
+								...(s.headers ?? {}),
+								Authorization: `Bearer ${jinaApiKey}`,
+							},
+						};
+					}
+				} catch {}
+				return s;
+			});
+			if (overlayApplied.length > 0) {
+				logger.debug({ overlayApplied }, "[mcp] injected Jina API key to servers");
 			}
 		}
 	} catch {

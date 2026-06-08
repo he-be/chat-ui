@@ -39,3 +39,12 @@ export const isTavilyMcpServer = (urlString: string): boolean => {
 		return false;
 	}
 };
+
+export const isJinaMcpServer = (urlString: string): boolean => {
+	try {
+		const u = new URL(urlString);
+		return u.protocol === "https:" && u.hostname.toLowerCase() === "mcp.jina.ai";
+	} catch {
+		return false;
+	}
+};

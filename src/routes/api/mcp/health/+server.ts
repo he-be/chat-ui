@@ -11,6 +11,7 @@ import {
 	hasNonEmptyToken,
 	isExaMcpServer,
 	isTavilyMcpServer,
+	isJinaMcpServer,
 } from "$lib/server/mcp/hf";
 
 interface HealthCheckRequest {
@@ -93,6 +94,19 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		if (!headersRecord["Accept"]) {
 			headersRecord["Accept"] = "application/json, text/event-stream";
 		}
+
+		// Inject Jina API key for mcp.jina.ai servers via Authorization header
+		try {
+			const jinaApiKey = config.JINA_API_KEY;
+			if (
+				isJinaMcpServer(finalUrl) &&
+				hasNonEmptyToken(jinaApiKey) &&
+				!headersRecord["Authorization"]
+			) {
+				headersRecord["Authorization"] = `Bearer ${jinaApiKey}`;
+				logger.debug({}, "[MCP Health] injected Jina API key");
+			}
+		} catch {}
 
 		// If enabled, attach the logged-in user's HF token only for the official HF MCP endpoint
 		try {

@@ -161,7 +161,8 @@ type ExtraConfigKeys =
 	| "MCP_FORWARD_HF_USER_TOKEN"
 	| "MCP_TOOL_TIMEOUT_MS"
 	| "EXA_API_KEY"
-	| "TAVILY_API_KEY";
+	| "TAVILY_API_KEY"
+	| "JINA_API_KEY";
 
 type ConfigProxy = ConfigManager & { [K in ConfigKey | ExtraConfigKeys]: string };
 
