@@ -13,7 +13,6 @@ on:
     paths:
       - "Dockerfile"
       - "entrypoint.sh"
-  workflow_dispatch:
   release:
     types: [published, edited]
 
