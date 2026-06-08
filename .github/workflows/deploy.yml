@@ -24,6 +24,10 @@ jobs:
           echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
           echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
 
+      - name: Cleanup build cache
+        run: |
+          docker builder prune -f
+
       - name: Build Docker image
         run: |
           docker build \
@@ -71,7 +75,9 @@ jobs:
 
       - name: Cleanup old images
         run: |
-          docker image prune -f --filter "until=24h"
+          # Keep only latest tag + current commit tag + mongo
+          docker image prune -f --filter "until=2h"
+          docker builder prune -f --filter "until=1h"
 
       - name: Deploy failure notification
         if: failure()
