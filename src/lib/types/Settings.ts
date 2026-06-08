@@ -83,12 +83,36 @@ export interface Settings extends Timestamps {
 }
 
 export type SettingsEditable = Omit<Settings, "welcomeModalSeenAt" | "createdAt" | "updatedAt">;
+
+// Parse DEFAULT_SYSTEM_PROMPTS env var (JSON: { "modelId": "prompt", ... })
+function parseDefaultSystemPrompts(): {
+	prompts: Record<string, string>;
+	enabled: Record<string, boolean>;
+} {
+	const raw = typeof process !== "undefined" && process.env?.DEFAULT_SYSTEM_PROMPTS;
+	if (!raw || raw.trim() === "{}" || raw.trim() === "") {
+		return { prompts: {}, enabled: {} };
+	}
+	try {
+		const parsed = JSON.parse(raw) as Record<string, string>;
+		return {
+			prompts: parsed,
+			enabled: Object.fromEntries(Object.keys(parsed).map((k) => [k, true])),
+		};
+	} catch {
+		console.warn("Failed to parse DEFAULT_SYSTEM_PROMPTS env var, ignoring.");
+		return { prompts: {}, enabled: {} };
+	}
+}
+
+const defaultPrompts = parseDefaultSystemPrompts();
+
 // TODO: move this to a constant file along with other constants
 export const DEFAULT_SETTINGS = {
 	shareConversationsWithModelAuthors: true,
 	activeModel: defaultModel.id,
-	customPrompts: {},
-	customPromptsEnabled: {},
+	customPrompts: defaultPrompts.prompts,
+	customPromptsEnabled: defaultPrompts.enabled,
 	multimodalOverrides: {},
 	toolsOverrides: {},
 	hidePromptExamples: {},

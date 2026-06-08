@@ -739,7 +739,7 @@
 							<ChatInput value="Sorry, something went wrong. Please try again." disabled={true} />
 						{:else}
 							<ChatInput
-								placeholder={isReadOnly ? "This conversation is read-only." : "Ask anything"}
+								placeholder={isReadOnly ? "This conversation is read-only." : "偽Geminiに相談"}
 								{loading}
 								bind:value={draft}
 								bind:files

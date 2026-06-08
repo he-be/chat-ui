@@ -9,6 +9,22 @@ import { DEFAULT_SETTINGS, type SettingsEditable } from "$lib/types/Settings";
 import { resolveStreamingMode } from "$lib/utils/messageUpdates";
 import { z } from "zod";
 
+// Merge user settings with defaults: user value wins only if non-empty
+function mergeWithDefaults(
+	user: Record<string, string> | undefined,
+	defaults: Record<string, string>
+): Record<string, string> {
+	const merged = { ...defaults };
+	if (user) {
+		for (const [key, val] of Object.entries(user)) {
+			if (val !== "" && val != null) {
+				merged[key] = val;
+			}
+		}
+	}
+	return merged;
+}
+
 const settingsSchema = z.object({
 	shareConversationsWithModelAuthors: z
 		.boolean()
@@ -66,8 +82,11 @@ export const GET: RequestHandler = async ({ locals }) => {
 			settings?.shareConversationsWithModelAuthors ??
 			DEFAULT_SETTINGS.shareConversationsWithModelAuthors,
 
-		customPrompts: settings?.customPrompts ?? {},
-		customPromptsEnabled: settings?.customPromptsEnabled ?? {},
+		customPrompts: mergeWithDefaults(settings?.customPrompts, DEFAULT_SETTINGS.customPrompts),
+		customPromptsEnabled: {
+			...DEFAULT_SETTINGS.customPromptsEnabled,
+			...(settings?.customPromptsEnabled ?? {}),
+		},
 		// On HuggingChat, tool/multimodal capability comes from the upstream router,
 		// so we hide any per-user overrides (existing or new) instead of letting them apply.
 		multimodalOverrides: config.isHuggingChat ? {} : (settings?.multimodalOverrides ?? {}),

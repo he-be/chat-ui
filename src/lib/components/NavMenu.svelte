@@ -128,22 +128,31 @@
 	});
 </script>
 
-<div class="flex items-center gap-1 px-1.5 py-3">
-	<a
-		class="flex size-10 select-none items-center justify-center rounded-full transition-colors hover:bg-gemini-hoverBg"
-		href="{publicConfig.PUBLIC_ORIGIN}{base}/"
-		title="Home"
-	>
-		<img src="/sparkle.svg" alt="Gemini" class="size-8" />
-	</a>
-	<a
-		href={`${base}/`}
-		onclick={handleNewChatClick}
-		class="flex items-center gap-3 truncate rounded-lg px-3 py-2.5 text-sm font-normal text-gemini-onSurface transition-colors hover:bg-gemini-hoverBg"
-		title="New chat"
-	>
-		<svg
-			width="20"
+<div class="flex flex-col">
+	<!-- Logo + App Title -->
+	<div class="flex items-center gap-1 px-1.5 py-1">
+		<a
+			class="flex size-10 select-none items-center justify-center rounded-full transition-colors hover:bg-gemini-hoverBg"
+			href="{publicConfig.PUBLIC_ORIGIN}{base}/"
+			title="Home"
+		>
+			<img src="/sparkle.svg" alt="Gemini" class="size-8" />
+		</a>
+		<span class="truncate text-base font-medium text-gemini-onSurface">
+			{publicConfig.PUBLIC_APP_NAME}
+		</span>
+	</div>
+
+	<!-- Action Buttons -->
+	<div class="flex flex-col gap-0.5 px-2 pb-1 pt-1">
+		<a
+			href={`${base}/`}
+			onclick={handleNewChatClick}
+			class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-gemini-onSurface transition-colors hover:bg-gemini-hoverBg"
+			title="チャットを新規作成"
+		>
+			<svg
+				width="20"
 			height="20"
 			viewBox="0 0 24 24"
 			fill="none"
@@ -151,9 +160,19 @@
 			stroke-width="2"
 			stroke-linecap="round"
 			><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg
+			>
+			<span class="truncate">チャットを新規作成</span>
+		</a>
+		<button
+			class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-gemini-onSurface transition-colors hover:bg-gemini-hoverBg"
+			title="チャットを検索"
 		>
-		<span class="truncate">New chat</span>
-	</a>
+			<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+				<path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+			</svg>
+			<span class="truncate">チャットを検索</span>
+		</button>
+	</div>
 </div>
 
 <div
