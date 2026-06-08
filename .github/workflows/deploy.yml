@@ -1,0 +1,76 @@
+name: Deploy to LXC
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract commit info
+        id: commit
+        run: |
+          echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            --build-arg INCLUDE_DB=false \
+            --build-arg PUBLIC_COMMIT_SHA=${{ github.sha }} \
+            --build-arg APP_BASE="" \
+            --cache-from=chat-ui:latest \
+            -t chat-ui:${{ steps.commit.outputs.sha_short }} \
+            -t chat-ui:latest \
+            .
+
+      - name: Stop old container
+        run: |
+          docker stop chat-ui || true
+          docker rm chat-ui || true
+
+      - name: Start new container
+        run: |
+          mkdir -p /opt/chat-ui/db
+          docker run -d \
+            --name chat-ui \
+            --restart unless-stopped \
+            -p 3000:3000 \
+            -v /opt/chat-ui/.env.local:/app/.env.local:ro \
+            -v /opt/chat-ui/db:/app/db \
+            chat-ui:${{ steps.commit.outputs.sha_short }}
+
+      - name: Wait for server
+        run: |
+          for i in $(seq 1 30); do
+            if curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/ | grep -q "200"; then
+              echo "Server is up (attempt $i)"
+              exit 0
+            fi
+            echo "Waiting for server... (attempt $i)"
+            sleep 3
+          done
+          echo "Server did not start in time"
+          docker logs chat-ui
+          exit 1
+
+      - name: Cleanup old images
+        run: |
+          docker image prune -f --filter "until=24h"
+
+      - name: Deploy failure notification
+        if: failure()
+        run: |
+          echo "Deployment failed! Check the logs above."
+          docker logs chat-ui 2>&1 | tail -50
