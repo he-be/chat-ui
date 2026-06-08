@@ -1,7 +1,8 @@
 # WEB 検索ツール戦略
 
 > 作成日: 2026-06-07
-> 状態: 検討中 (To-Do)
+> 更新日: 2026-06-08
+> 状態: ✅ 完了 (Phase 1 + Phase 2 実装済み、E2E テスト済み)
 
 ---
 
@@ -22,11 +23,11 @@
 
 ### 1.2 既存の検索統合
 
-| サービス    | 環境変数         | MCP サーバー URL              | 実装状況                         |
-| ----------- | ---------------- | ----------------------------- | -------------------------------- |
-| **Exa**     | `EXA_API_KEY`    | `https://mcp.exa.ai/mcp`      | ✅ 実装済み (URL パラメータ注入) |
-| **Tavily**  | `TAVILY_API_KEY` | `https://mcp.tavily.com/mcp/` | ❌ 未実装                        |
-| **Jina AI** | `JINA_API_KEY`   | `https://mcp.jina.ai/v1`      | ❌ 未実装                        |
+| サービス    | 環境変数         | MCP サーバー URL              | 実装状況                                 |
+| ----------- | ---------------- | ----------------------------- | ---------------------------------------- |
+| **Exa**     | `EXA_API_KEY`    | `https://mcp.exa.ai/mcp`      | ✅ 実装済み (URL パラメータ注入)         |
+| **Tavily**  | `TAVILY_API_KEY` | `https://mcp.tavily.com/mcp/` | ✅ 実装済み (URL パラメータ注入)         |
+| **Jina AI** | `JINA_API_KEY`   | `https://mcp.jina.ai/v1`      | ✅ 実装済み (Authorization ヘッダー注入) |
 
 Exa の実装パターン:
 
@@ -130,29 +131,30 @@ Jina のツールフィルタリング機能を活用し、**各サービスの�
 
 #### 役割分担の設計
 
-| サービス    | 役割                                 | 有効ツール                                                                                                                     | フィルタリング                                                                    |
-| ----------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------- |
-| **Tavily**  | メイン検索 + コンテンツ抽出          | `tavily_search`, `tavily_extract`, `tavily_map`, `tavily_crawl`                                                                | なし (全ツール有効)                                                               |
-| **Jina AI** | 学術検索 + 画像検索 + ユーティリティ | `search_arxiv`, `search_ssrn`, `search_images`, `search_bibtex`, `primer`, `expand_query`, `guess_datetime_url`, `extract_pdf` | `exclude_tags=read,parallel,rerank` + `exclude_tools=search_web,search_jina_blog` |
-| **Exa**     | 補完検索                             | (既存のツール)                                                                                                                 | なし                                                                              |
+| サービス    | 役割                                 | 有効ツール                                                                                                                                     | フィルタリング                                                                                  |
+| ----------- | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| **Tavily**  | メイン検索 + コンテンツ抽出          | `tavily_search`, `tavily_extract`, `tavily_map`, `tavily_crawl`, `tavily_research`                                                             | なし (全ツール有効)                                                                             |
+| **Jina AI** | 学術検索 + 画像検索 + ユーティリティ | `show_api_key`, `primer`, `guess_datetime_url`, `expand_query`, `search_arxiv`, `search_ssrn`, `search_images`, `search_bibtex`, `extract_pdf` | `exclude_tags=read,parallel,rerank` + `exclude_tools=search_web,search_jina_blog,classify_text` |
+| **Exa**     | 補完検索                             | (既存のツール)                                                                                                                                 | なし                                                                                            |
 
 #### Jina のフィルタリング URL
 
 ```
-https://mcp.jina.ai/v1?exclude_tags=read,parallel,rerank&exclude_tools=search_web,search_jina_blog
+https://mcp.jina.ai/v1?exclude_tags=read,parallel,rerank&exclude_tools=search_web,search_jina_blog,classify_text
 ```
 
-適用後の Jina 有効ツール:
+適用後の Jina 有効ツール (E2E テスト済み):
 
 | ツール               | 用途                    | API キー必須 |
 | -------------------- | ----------------------- | ------------ |
+| `show_api_key`       | API キー表示            | ❌           |
+| `primer`             | 時刻・文脈情報取得      | ❌           |
+| `guess_datetime_url` | ページの最終更新日判別  | ❌           |
+| `expand_query`       | クエリ拡張・書き換え    | ✅           |
 | `search_arxiv`       | 学術論文検索 (arXiv)    | ✅           |
 | `search_ssrn`        | 社会科学論文検索 (SSRN) | ✅           |
 | `search_images`      | 画像検索                | ✅           |
 | `search_bibtex`      | BibTeX 引用検索         | ❌           |
-| `primer`             | 時刻・文脈情報取得      | ❌           |
-| `expand_query`       | クエリ拡張・書き換え    | ✅           |
-| `guess_datetime_url` | ページの最終更新日判別  | ❌           |
 | `extract_pdf`        | PDF からの図表数式抽出  | ✅           |
 
 除外されたツールと理由:
@@ -166,7 +168,7 @@ https://mcp.jina.ai/v1?exclude_tags=read,parallel,rerank&exclude_tools=search_we
 | `search_jina_blog`                                        | Jina 自社ブログ検索はチャット用途不要                                                |
 | `classify_text`, `show_api_key`                           | チャット用途不要 (`classify_text` は `rerank` タグに含まれていないが `utility` タグ) |
 
-> **注:** `classify_text` は `utility` タグに含まれるが除外されない。必要に応じて `exclude_tools` に追加する。
+> **注:** `classify_text` は `utility` タグに含まれるため、`exclude_tools` に明示的に追加している。
 
 ### 3.3 実装ステップ (Phased Approach)
 
@@ -439,23 +441,30 @@ Jina の 19 ツールをすべて公開する。
 
 ### Phase 1 (Tavily)
 
-- [ ] `config.ts` に `TAVILY_API_KEY` を追加
-- [ ] `hf.ts` に `isTavilyMcpServer()` を追加
-- [ ] `runMcpFlow.ts` に Tavily の API キー注入を追加 (URL param)
-- [ ] `health/+server.ts` に Tavily の注入を追加
-- [ ] `.env` に `TAVILY_API_KEY` のドキュメントを追加 (EXA_API_KEY 直後)
-- [ ] `MCP_SERVERS` に Tavily を追加
-- [ ] E2E テスト (Tavily 検索クエリ → 結果表示)
+- [x] `config.ts` に `TAVILY_API_KEY` を追加
+- [x] `hf.ts` に `isTavilyMcpServer()` を追加
+- [x] `runMcpFlow.ts` に Tavily の API キー注入を追加 (URL param)
+- [x] `health/+server.ts` に Tavily の注入を追加
+- [x] `.env` に `TAVILY_API_KEY` のドキュメントを追加 (EXA_API_KEY 直後)
+- [x] `MCP_SERVERS` に Tavily を追加
+- [x] E2E テスト (Tavily 検索クエリ → 結果表示)
 
 ### Phase 2 (Jina AI)
 
-- [ ] `hf.ts` に `isJinaMcpServer()` を追加
-- [ ] `runMcpFlow.ts` に Jina の API キー注入を追加 (Header)
-- [ ] `health/+server.ts` に Jina の注入を追加
-- [ ] `.env` に `JINA_API_KEY` のドキュメントを追加
-- [ ] `MCP_SERVERS` に Jina を追加 (ツールフィルタリング URL)
-- [ ] フィルタリング後のツール一覧確認
-- [ ] E2E テスト (学術検索、画像検索)
+- [x] `hf.ts` に `isJinaMcpServer()` を追加
+- [x] `runMcpFlow.ts` に Jina の API キー注入を追加 (Header)
+- [x] `health/+server.ts` に Jina の注入を追加
+- [x] `.env` に `JINA_API_KEY` のドキュメントを追加
+- [x] `MCP_SERVERS` に Jina を追加 (ツールフィルタリング URL)
+- [x] フィルタリング後のツール一覧確認
+- [x] E2E テスト (学術検索、画像検索)
+
+### 実装済みコミット
+
+| Phase   | コミット SHA | 内容                                                             |
+| ------- | ------------ | ---------------------------------------------------------------- |
+| Phase 1 | `1e456ee6`   | Tavily 統合 (URL パラメータ注入)                                 |
+| Phase 2 | `e1d7ca47`   | Jina AI 統合 (Authorization ヘッダー注入 + ツールフィルタリング) |
 
 ---
 
