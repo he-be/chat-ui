@@ -12,3 +12,9 @@ node_modules
 pnpm-lock.yaml
 package-lock.json
 yarn.lock
+
+# Local dev notes
+PLAN.md
+TODO.md
+docs/memo_*.txt
+docs/sample_pdfs/

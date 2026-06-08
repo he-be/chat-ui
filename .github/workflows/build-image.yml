@@ -1,21 +1,9 @@
 name: Build and Publish Image
 
-permissions:
-  packages: write
-
+# Disabled: GHCR publish is for huggingface/org only
+# Use deploy.yml for self-hosted deployment
 on:
-  push:
-    branches:
-      - "main"
-  pull_request:
-    branches:
-      - "*"
-    paths:
-      - "Dockerfile"
-      - "entrypoint.sh"
   workflow_dispatch:
-  release:
-    types: [published, edited]
 
 jobs:
   build-and-publish-image-with-db:

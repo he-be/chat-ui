@@ -1,10 +1,8 @@
 name: Build documentation
 
+# Disabled: requires HF org secrets (HUGGINGFACE_PUSH, HF_DOC_BUILD_PUSH)
 on:
-  push:
-    branches:
-      - main
-      - v*-release
+  workflow_dispatch:
 
 jobs:
   build:

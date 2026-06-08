@@ -1,0 +1,94 @@
+name: Deploy to LXC
+
+on:
+  workflow_run:
+    workflows: ["Lint and test"]
+    types: [completed]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    if: >-
+      ${{
+        github.event_name == 'workflow_dispatch' ||
+        (github.event_name == 'workflow_run' &&
+         github.event.workflow_run.conclusion == 'success' &&
+         github.event.workflow_run.event == 'push')
+      }}
+    runs-on: self-hosted
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract commit info
+        id: commit
+        run: |
+          echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Cleanup build cache
+        run: |
+          docker builder prune -f
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            --build-arg INCLUDE_DB=false \
+            --build-arg PUBLIC_COMMIT_SHA=${{ github.sha }} \
+            --build-arg APP_BASE="" \
+            --cache-from=chat-ui:latest \
+            -t chat-ui:${{ steps.commit.outputs.sha_short }} \
+            -t chat-ui:latest \
+            .
+
+      - name: Start services with docker-compose
+        run: |
+          cd /opt/chat-ui
+          docker compose -f docker-compose.deploy.yml up -d mongo
+          docker compose -f docker-compose.deploy.yml up -d app
+
+      - name: Wait for MongoDB
+        run: |
+          for i in $(seq 1 20); do
+            if docker exec chat-ui-mongo mongosh --eval "db.adminCommand('ping')" --quiet 2>/dev/null; then
+              echo "MongoDB is ready (attempt $i)"
+              exit 0
+            fi
+            echo "Waiting for MongoDB... (attempt $i)"
+            sleep 2
+          done
+          echo "MongoDB did not start in time"
+          docker logs chat-ui-mongo
+          exit 1
+
+      - name: Wait for app server
+        run: |
+          for i in $(seq 1 30); do
+            if curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/ | grep -q "200"; then
+              echo "Server is up (attempt $i)"
+              exit 0
+            fi
+            echo "Waiting for server... (attempt $i)"
+            sleep 3
+          done
+          echo "Server did not start in time"
+          docker logs chat-ui
+          exit 1
+
+      - name: Cleanup old images
+        run: |
+          # Keep only latest tag + current commit tag + mongo
+          docker image prune -f --filter "until=2h"
+          docker builder prune -f --filter "until=1h"
+
+      - name: Deploy failure notification
+        if: failure()
+        run: |
+          echo "Deployment failed! Check the logs above."
+          docker logs chat-ui 2>&1 | tail -50
+          docker logs chat-ui-mongo 2>&1 | tail -20
