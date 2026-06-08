@@ -22,6 +22,23 @@ module.exports = {
 					900: "#0a0a0a",
 					950: "#000000",
 				},
+				// Gemini Material Design 3 dark theme colors
+				gemini: {
+					surface: "#1f1f1f",
+					surfaceContainer: "#1e1f20",
+					surfaceContainerHigh: "#303030",
+					surfaceContainerHighest: "#3c4043",
+					surfaceBright: "#3c4043",
+					onSurface: "#e3e3e3",
+					onSurfaceVariant: "#c4c7c5",
+					outline: "#444746",
+					outlineVariant: "#8e918f",
+					primary: "#a8c7fa",
+					primaryContainer: "#062e6f",
+					secondaryContainer: "#444746",
+					hoverBg: "rgba(230,234,240,0.08)",
+					activeBg: "rgba(230,234,240,0.12)",
+				},
 			},
 			fontSize: {
 				xxs: "0.625rem",

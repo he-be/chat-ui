@@ -4,10 +4,72 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ===== Gemini-style global overrides ===== */
+:root {
+	--gemini-font:
+		"Google Sans Flex", "Google Sans", "Noto Sans JP", "Hiragino Kaku Gothic ProN", Meiryo,
+		Helvetica Neue, sans-serif;
+}
+
 html,
 body {
 	overscroll-behavior: none;
 	touch-action: pan-x pan-y;
+	font-family: var(--gemini-font);
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+/* Gemini-style body background */
+body {
+	background: #1f1f1f;
+	color: #e3e3e3;
+}
+
+body:not(.dark) {
+	background: #ffffff;
+	color: #1f1f1f;
+}
+
+/* Gemini-style scrollbars */
+::-webkit-scrollbar {
+	width: 6px;
+	height: 6px;
+}
+
+::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+	background: #444746;
+	border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: #5a5d5c;
+}
+
+/* Typing cursor animation (Gemini style) */
+.typing-cursor {
+	display: inline-block;
+	width: 2px;
+	height: 1em;
+	background: currentColor;
+	margin-left: 2px;
+	animation: blink 0.8s infinite;
+	vertical-align: text-bottom;
+}
+
+@keyframes blink {
+	0%,
+	50% {
+		opacity: 1;
+	}
+	51%,
+	100% {
+		opacity: 0;
+	}
 }
 
 @layer components {
@@ -101,11 +163,11 @@ body {
 	}
 
 	.prose pre {
-		@apply border-[0.5px] bg-white text-gray-600 dark:border-gray-700 dark:!bg-gray-900 dark:bg-inherit dark:text-inherit;
+		@apply border-[0.5px] bg-white text-gray-600 dark:border-gemini-outline dark:!bg-gemini-surfaceContainer dark:bg-inherit dark:text-inherit;
 	}
 
 	.prose code:not(pre code) {
-		@apply rounded-md bg-gray-200/60 px-[0.4em] py-[0.2em] text-[85%] dark:bg-gray-700;
+		@apply rounded-md bg-gray-200/60 px-[0.4em] py-[0.2em] text-[85%] dark:bg-gemini-surfaceContainerHigh;
 	}
 
 	.prose code:not(pre code)::before,

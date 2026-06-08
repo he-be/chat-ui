@@ -237,7 +237,7 @@
 		rows="1"
 		tabindex="0"
 		inputmode="text"
-		class="scrollbar-custom max-h-[4lh] w-full resize-none overflow-y-auto overflow-x-hidden border-0 bg-transparent px-2.5 py-2.5 outline-none focus:ring-0 focus-visible:ring-0 sm:px-3 md:max-h-[8lh]"
+		class="scrollbar-custom max-h-[4lh] w-full resize-none overflow-y-auto overflow-x-hidden border-0 bg-transparent px-3 py-3 text-base outline-none focus:ring-0 focus-visible:ring-0 sm:px-4 md:max-h-[8lh]"
 		class:text-gray-400={disabled}
 		bind:value
 		bind:this={textareaElement}

@@ -569,7 +569,7 @@
 		bind:this={chatContainer}
 	>
 		<div
-			class="mx-auto flex h-full max-w-3xl flex-col gap-6 px-5 pt-6 sm:gap-8 xl:max-w-4xl xl:pt-10"
+			class="mx-auto flex h-full max-w-3xl flex-col gap-6 px-5 pt-4 sm:gap-8 xl:max-w-[760px] xl:pt-6"
 		>
 			{#if preprompt && preprompt != currentModel.preprompt}
 				<SystemPromptModal preprompt={preprompt ?? ""} />
@@ -639,9 +639,9 @@
 	<div
 		class="pointer-events-none absolute inset-x-0 bottom-0 z-0 mx-auto flex w-full
 			max-w-3xl flex-col items-center justify-center bg-gradient-to-t from-white
-			via-white/100 to-white/0 px-3.5 pt-2 dark:border-gray-800
-			dark:from-gray-900 dark:via-gray-900/100
-			dark:to-gray-900/0 max-sm:py-0 sm:px-5 md:pb-4 xl:max-w-4xl [&>*]:pointer-events-auto"
+			via-white/80 to-white/0 px-4 pt-2 dark:border-gray-800
+			dark:from-gemini-surface dark:via-gemini-surface/90
+			dark:to-gemini-surface/0 max-sm:py-0 sm:px-5 md:pb-4 xl:max-w-[760px] [&>*]:pointer-events-auto"
 	>
 		{#if !draft.length && !messages.length && !sources.length && !loading && (currentModel.isRouter || (modelSupportsTools && $allBaseServersEnabled)) && activeExamples.length && !hideRouterExamples && !lastIsError && $mcpServersLoaded}
 			<div
@@ -712,7 +712,7 @@
 					handleSubmit();
 				}}
 				class={{
-					"relative flex w-full max-w-4xl flex-1 items-center rounded-xl border bg-gray-100 dark:border-gray-700 dark:bg-gray-800": true,
+					"relative flex w-full max-w-4xl flex-1 items-center rounded-2xl border bg-gray-100 dark:border-gemini-outline dark:bg-gemini-surfaceContainerHigh": true,
 					"opacity-30": isReadOnly,
 					"max-sm:mb-4": focused && isVirtualKeyboard(),
 				}}
@@ -760,13 +760,13 @@
 									onstop?.();
 								}}
 								showBorder={true}
-								classNames="absolute bottom-2 right-2 size-8 sm:size-7 self-end rounded-full border bg-white text-black shadow transition-none dark:border-transparent dark:bg-gray-600 dark:text-white"
+								classNames="absolute bottom-2 right-2 size-8 sm:size-7 self-end rounded-full border transition-none dark:border-transparent bg-white text-gray-700 dark:bg-gemini-surfaceContainerHighest dark:text-gemini-onSurface"
 							/>
 						{:else}
 							{#if transcriptionEnabled}
 								<button
 									type="button"
-									class="btn absolute bottom-2 right-10 mr-1.5 size-8 self-end rounded-full border bg-white/50 text-gray-500 transition-none hover:bg-gray-50 hover:text-gray-700 dark:border-transparent dark:bg-gray-600/50 dark:text-gray-300 dark:hover:bg-gray-500 dark:hover:text-white sm:right-9 sm:size-7"
+									class="btn absolute bottom-2 right-10 mr-1.5 size-8 self-end rounded-full border bg-white/50 text-gray-500 transition-none hover:bg-gray-50 hover:text-gray-700 dark:border-transparent dark:bg-gemini-surfaceContainerHigh/50 dark:text-gemini-onSurfaceVariant dark:hover:bg-gemini-surfaceContainerHighest sm:right-9 sm:size-7"
 									disabled={isReadOnly}
 									onclick={() => {
 										isRecording = true;
@@ -777,10 +777,9 @@
 								</button>
 							{/if}
 							<button
-								class="btn absolute bottom-2 right-2 size-8 self-end rounded-full border bg-white text-black shadow transition-none enabled:hover:bg-white enabled:hover:shadow-inner dark:border-transparent dark:bg-gray-600 dark:text-white dark:hover:enabled:bg-black sm:size-7 {!draft ||
-								isReadOnly
-									? ''
-									: '!bg-black !text-white dark:!bg-white dark:!text-black'}"
+								class="btn absolute bottom-2 right-2 size-8 self-end rounded-full border bg-white text-gray-500 transition-none
+								hover:bg-gray-50 hover:text-gray-700 dark:border-transparent dark:bg-gemini-surfaceContainerHigh dark:text-gemini-onSurfaceVariant dark:hover:bg-gemini-surfaceContainerHighest sm:size-7
+								{!draft || isReadOnly ? 'opacity-50' : '!text-gemini-primary'}"
 								disabled={!draft || isReadOnly}
 								type="submit"
 								aria-label="Send message"
@@ -794,7 +793,7 @@
 			</form>
 			<div
 				class={{
-					"mt-1.5 flex h-5 items-center self-stretch whitespace-nowrap px-0.5 text-xs text-gray-400/90 max-md:mb-2 max-sm:gap-2": true,
+					"mt-1.5 flex h-5 items-center self-stretch whitespace-nowrap px-0.5 text-xs text-gemini-onSurfaceVariant/60 max-md:mb-2 max-sm:gap-2": true,
 					"max-sm:hidden": focused && isVirtualKeyboard(),
 				}}
 			>

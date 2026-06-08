@@ -10,7 +10,6 @@
 <script lang="ts">
 	import { base } from "$app/paths";
 
-	import Logo from "$lib/components/icons/Logo.svelte";
 	import IconSun from "$lib/components/icons/IconSun.svelte";
 	import IconMoon from "$lib/components/icons/IconMoon.svelte";
 	import { switchTheme, subscribeToTheme } from "$lib/switchTheme";
@@ -129,33 +128,41 @@
 	});
 </script>
 
-<div
-	class="sticky top-0 flex flex-none touch-none items-center justify-between px-1.5 py-3.5 max-sm:pt-0"
->
+<div class="flex items-center gap-1 px-1.5 py-3">
 	<a
-		class="flex select-none items-center rounded-xl text-lg font-semibold"
+		class="flex size-10 select-none items-center justify-center rounded-full transition-colors hover:bg-gemini-hoverBg"
 		href="{publicConfig.PUBLIC_ORIGIN}{base}/"
+		title="Home"
 	>
-		<Logo classNames="dark:invert mr-[2px]" />
-		{publicConfig.PUBLIC_APP_NAME}
+		<img src="/sparkle.svg" alt="Gemini" class="size-8" />
 	</a>
 	<a
 		href={`${base}/`}
 		onclick={handleNewChatClick}
-		class="flex rounded-lg border bg-white px-2 py-0.5 text-center shadow-sm hover:shadow-none dark:border-gray-600 dark:bg-gray-700 sm:text-smd"
-		title="Ctrl/Cmd + Shift + O"
+		class="flex items-center gap-3 truncate rounded-lg px-3 py-2.5 text-sm font-normal text-gemini-onSurface transition-colors hover:bg-gemini-hoverBg"
+		title="New chat"
 	>
-		New Chat
+		<svg
+			width="20"
+			height="20"
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			stroke-width="2"
+			stroke-linecap="round"
+			><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg
+		>
+		<span class="truncate">New chat</span>
 	</a>
 </div>
 
 <div
-	class="scrollbar-custom flex touch-pan-y flex-col gap-1 overflow-y-auto rounded-r-xl border border-l-0 border-gray-100 from-gray-50 px-3 pb-3 pt-2 text-[.9rem] dark:border-transparent dark:from-gray-800/30 max-sm:bg-gradient-to-t md:bg-gradient-to-l"
+	class="scrollbar-custom flex touch-pan-y flex-col gap-1 overflow-y-auto px-2 pb-3 pt-1 text-[.9rem] text-gemini-onSurfaceVariant"
 >
 	<div class="flex flex-col gap-px">
 		{#each Object.entries(groupedConversations) as [group, convs]}
 			{#if convs.length}
-				<h4 class="mb-1.5 mt-4 pl-0.5 text-xs text-gray-400 first:mt-0 dark:text-gray-500">
+				<h4 class="mb-1 mt-3 pl-3 text-xs font-medium text-gemini-onSurfaceVariant/70 first:mt-0">
 					{titles[group]}
 				</h4>
 				{#each convs as conv}
@@ -169,15 +176,15 @@
 	{/if}
 </div>
 <div
-	class="flex touch-none flex-col gap-px rounded-r-xl border border-l-0 border-gray-100 p-3 text-base dark:border-transparent sm:text-sm md:mt-3 md:bg-gradient-to-l md:from-gray-50 md:dark:from-gray-800/30"
+	class="flex touch-none flex-col gap-px px-2 py-2 text-base text-gemini-onSurfaceVariant sm:text-sm"
 >
 	{#if user?.username || user?.email}
 		<div
-			class="group flex h-8 items-center gap-1.5 rounded-lg pl-2 pr-2 hover:bg-gray-100 first:hover:bg-transparent dark:hover:bg-gray-700 first:dark:hover:bg-transparent max-sm:h-10"
+			class="group flex h-9 items-center gap-2 rounded-xl pl-3 pr-2 text-gemini-onSurfaceVariant transition-colors hover:bg-gemini-hoverBg max-sm:h-10"
 		>
 			<img
 				src="https://huggingface.co/api/users/{user.username}/avatar?redirect=true"
-				class="size-3.5 rounded-full border bg-gray-500 dark:border-white/40"
+				class="size-6 rounded-full border border-white/10"
 				alt=""
 			/>
 			{#if publicConfig.isHuggingChat && user?.username}
@@ -185,12 +192,11 @@
 					href="https://huggingface.co/{user.username}"
 					target="_blank"
 					rel="noopener noreferrer"
-					class="flex flex-none shrink items-center gap-1.5 truncate pr-2 text-gray-500 hover:underline dark:text-gray-400"
+					class="flex flex-none shrink items-center gap-1.5 truncate pr-2 text-sm hover:underline"
 					>{user.username}</a
 				>
 			{:else}
-				<span
-					class="flex flex-none shrink items-center gap-1.5 truncate pr-2 text-gray-500 dark:text-gray-400"
+				<span class="flex flex-none shrink items-center gap-1.5 truncate pr-2 text-sm"
 					>{user?.username || user?.email}</span
 				>
 			{/if}
@@ -200,14 +206,14 @@
 					href="https://huggingface.co/subscribe/pro?from=HuggingChat"
 					target="_blank"
 					rel="noopener noreferrer"
-					class="ml-auto flex h-[20px] items-center gap-1 px-1.5 py-0.5 text-xs text-gray-500 dark:text-gray-400"
+					class="ml-auto flex h-[20px] items-center gap-1 px-1.5 py-0.5 text-xs text-gemini-onSurfaceVariant"
 				>
 					<IconPro />
 					Get PRO
 				</a>
 			{:else if publicConfig.isHuggingChat && $isPro === true}
 				<span
-					class="ml-auto flex h-[20px] items-center gap-1 px-1.5 py-0.5 text-xs text-gray-500 dark:text-gray-400"
+					class="ml-auto flex h-[20px] items-center gap-1 px-1.5 py-0.5 text-xs text-gemini-onSurfaceVariant"
 				>
 					<IconPro />
 					PRO
@@ -217,12 +223,12 @@
 	{/if}
 	<a
 		href="{base}/models"
-		class="flex h-8 flex-none items-center gap-1.5 rounded-lg pl-2 pr-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 max-sm:h-10"
+		class="flex h-9 flex-none items-center gap-2 rounded-xl pl-3 pr-2 text-gemini-onSurfaceVariant transition-colors hover:bg-gemini-hoverBg max-sm:h-10"
 		onclick={handleNavItemClick}
 	>
-		Models
+		<span class="text-sm">Models</span>
 		<span
-			class="ml-auto rounded-md bg-gray-500/5 px-1.5 py-0.5 text-xs text-gray-400 dark:bg-gray-500/20 dark:text-gray-400"
+			class="ml-auto rounded-full bg-gemini-outline/30 px-2 py-0.5 text-xs text-gemini-onSurfaceVariant/70"
 			>{nModels}</span
 		>
 	</a>
@@ -230,43 +236,39 @@
 	{#if user?.username || user?.email}
 		<button
 			onclick={() => (showMcpModal = true)}
-			class="flex h-8 flex-none items-center gap-1.5 rounded-lg pl-2 pr-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 max-sm:h-10"
+			class="flex h-9 flex-none items-center gap-2 rounded-xl pl-3 pr-2 text-gemini-onSurfaceVariant transition-colors hover:bg-gemini-hoverBg max-sm:h-10"
 		>
-			MCP Servers
+			<span class="text-sm">MCP Servers</span>
 			{#if $enabledServersCount > 0}
-				<span
-					class="ml-auto rounded-md bg-blue-600/10 px-1.5 py-0.5 text-xs text-blue-600 dark:bg-blue-600/20 dark:text-blue-400"
-				>
+				<span class="ml-auto rounded-full bg-blue-600/15 px-2 py-0.5 text-xs text-blue-400">
 					{$enabledServersCount}
 				</span>
 			{/if}
 		</button>
 	{/if}
 
-	<span class="flex gap-px">
-		<a
-			href="{base}/settings/application"
-			class="flex h-8 flex-none flex-grow items-center gap-1.5 rounded-lg pl-2 pr-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 max-sm:h-10"
-			onclick={handleNavItemClick}
-		>
-			Settings
-		</a>
-		<button
-			onclick={() => {
-				switchTheme();
-			}}
-			aria-label="Toggle theme"
-			class="flex size-8 min-w-[1.5em] flex-none items-center justify-center rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 max-sm:size-10"
-		>
-			{#if browser}
-				{#if isDark}
-					<IconSun />
-				{:else}
-					<IconMoon />
-				{/if}
+	<a
+		href="{base}/settings/application"
+		class="flex h-9 flex-none items-center gap-2 rounded-xl pl-3 pr-2 text-gemini-onSurfaceVariant transition-colors hover:bg-gemini-hoverBg max-sm:h-10"
+		onclick={handleNavItemClick}
+	>
+		<span class="text-sm">Settings</span>
+	</a>
+	<button
+		onclick={() => {
+			switchTheme();
+		}}
+		aria-label="Toggle theme"
+		class="flex h-9 flex-none items-center gap-2 rounded-xl pl-3 pr-2 text-gemini-onSurfaceVariant transition-colors hover:bg-gemini-hoverBg max-sm:h-10"
+	>
+		{#if browser}
+			{#if isDark}
+				<IconSun />
+			{:else}
+				<IconMoon />
 			{/if}
-		</button>
-	</span>
+		{/if}
+	</button>
 </div>
 
 {#if showMcpModal}

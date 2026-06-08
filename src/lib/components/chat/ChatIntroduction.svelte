@@ -1,5 +1,4 @@
 <script lang="ts">
-	import Logo from "$lib/components/icons/Logo.svelte";
 	import type { Model } from "$lib/types/Model";
 	import { usePublicConfig } from "$lib/utils/PublicConfig.svelte";
 
@@ -19,12 +18,12 @@
 	});
 </script>
 
-<div class="my-auto grid items-center justify-center gap-8 text-center">
+<div class="my-auto grid items-center justify-center gap-6 text-center">
 	<div
-		class="flex -translate-y-16 select-none items-center rounded-xl text-3xl font-semibold md:-translate-y-12 md:text-5xl"
+		class="flex -translate-y-16 select-none items-center justify-center gap-3 text-3xl font-normal md:-translate-y-12 md:text-4xl"
 	>
-		<Logo classNames="size-12 md:size-20 dark:invert mr-0.5" />
-		{publicConfig.PUBLIC_APP_NAME}
+		<img src="/sparkle.svg" alt="Gemini" class="size-10 md:size-14" />
+		<span class="tracking-wide">{publicConfig.PUBLIC_APP_NAME}</span>
 	</div>
 	<!-- <div class="lg:col-span-1">
 		<div>

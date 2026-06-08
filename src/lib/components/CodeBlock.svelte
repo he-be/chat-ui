@@ -31,7 +31,7 @@
 	let showPreview = $derived(hasStrictHtml5Doctype(rawCode) || isSvgDocument(rawCode));
 </script>
 
-<div class="group relative my-4 rounded-lg">
+<div class="group relative my-4 rounded-lg dark:rounded-xl">
 	<div class="pointer-events-none sticky top-0 w-full">
 		<div
 			class="pointer-events-auto absolute right-2 top-2 flex items-center gap-1.5 md:right-3 md:top-3"

@@ -29,6 +29,7 @@ export default defineConfig({
 	],
 	// Allow external access via ngrok tunnel host
 	server: {
+		host: "0.0.0.0",
 		port: process.env.PORT ? parseInt(process.env.PORT) : 5173,
 		// Allow any ngrok-free.app subdomain (dynamic tunnels)
 		// See Vite server.allowedHosts: string[] | true

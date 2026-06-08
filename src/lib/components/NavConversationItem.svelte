@@ -56,8 +56,8 @@
 </script>
 
 <div
-	class="group flex h-8 flex-none items-center gap-1.5 rounded-lg pl-2 pr-1.5 text-base text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 max-sm:h-10 sm:text-sm
-		{conv.id === page.params.id ? 'bg-gray-100 dark:bg-gray-700' : ''}"
+	class="group flex h-9 flex-none items-center gap-1.5 rounded-xl pl-3 pr-2 text-sm text-gemini-onSurfaceVariant transition-colors hover:bg-gemini-hoverBg max-sm:h-10
+		{conv.id === page.params.id ? 'bg-gemini-activeBg text-gemini-onSurface' : ''}"
 >
 	{#if inlineEditing}
 		<input

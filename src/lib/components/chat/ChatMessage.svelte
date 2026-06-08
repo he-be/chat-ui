@@ -245,7 +245,7 @@
 {#if message.from === "assistant"}
 	<div
 		bind:offsetWidth={messageWidth}
-		class="group relative -mb-4 flex w-fit max-w-full items-start justify-start gap-4 pb-4 leading-relaxed max-sm:mb-1 {message.routerMetadata &&
+		class="group relative flex w-full items-start justify-start gap-3 leading-relaxed {message.routerMetadata &&
 		messageInfoWidth >= messageWidth
 			? 'mb-1'
 			: ''}"
@@ -256,11 +256,11 @@
 		onkeydown={() => (isTapped = !isTapped)}
 	>
 		<MessageAvatar
-			classNames="mt-5 size-3.5 flex-none select-none rounded-full shadow-lg max-sm:hidden"
+			classNames="mt-1 size-6 flex-none select-none rounded-full shadow-lg max-sm:hidden"
 			animating={isLast && loading}
 		/>
 		<div
-			class="relative flex min-w-[60px] flex-col gap-2 break-words rounded-2xl border border-gray-100 bg-gradient-to-br from-gray-50 px-5 py-3.5 text-gray-600 prose-pre:my-2 dark:border-gray-800 dark:from-gray-800/80 dark:text-gray-300"
+			class="relative flex min-w-0 flex-1 flex-col gap-2 break-words text-base leading-relaxed text-gray-700 dark:text-gemini-onSurface"
 		>
 			{#if message.files?.length}
 				<div class="flex h-fit flex-wrap gap-x-5 gap-y-2">
@@ -301,7 +301,7 @@
 									/>
 								{:else if part && part.trim().length > 0}
 									<div
-										class="prose max-w-none dark:prose-invert prose-headings:font-semibold prose-h1:text-lg prose-h2:text-base prose-h3:text-base prose-pre:bg-gray-800 prose-img:my-0 prose-img:cursor-pointer prose-img:rounded-lg dark:prose-pre:bg-gray-900"
+										class="prose max-w-none dark:prose-invert prose-headings:font-medium prose-h1:text-lg prose-h2:text-base prose-h3:text-base prose-a:text-gemini-primary prose-pre:bg-gemini-surfaceContainer prose-img:my-0 prose-img:cursor-pointer prose-img:rounded-lg dark:prose-pre:bg-gemini-surfaceContainer"
 									>
 										<MarkdownRenderer content={part} loading={isLast && loading} />
 									</div>
@@ -309,7 +309,7 @@
 							{/each}
 						{:else if block.content.trim().length > 0}
 							<div
-								class="prose max-w-none dark:prose-invert prose-headings:font-semibold prose-h1:text-lg prose-h2:text-base prose-h3:text-base prose-pre:bg-gray-800 prose-img:my-0 prose-img:cursor-pointer prose-img:rounded-lg dark:prose-pre:bg-gray-900"
+								class="prose max-w-none dark:prose-invert prose-headings:font-medium prose-h1:text-lg prose-h2:text-base prose-h3:text-base prose-a:text-gemini-primary prose-pre:bg-gemini-surfaceContainer prose-img:my-0 prose-img:cursor-pointer prose-img:rounded-lg dark:prose-pre:bg-gemini-surfaceContainer"
 							>
 								<MarkdownRenderer content={block.content} loading={isLast && loading} />
 							</div>
@@ -321,14 +321,12 @@
 
 		{#if message.routerMetadata || (!loading && message.content)}
 			<div
-				class="absolute -bottom-3.5 {message.routerMetadata && messageInfoWidth > messageWidth
-					? 'left-1 pl-1 lg:pl-7'
-					: 'right-1'} flex max-w-[calc(100dvw-40px)] items-center gap-0.5"
+				class="mt-2 flex max-w-[calc(100dvw-40px)] items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100"
 				bind:offsetWidth={messageInfoWidth}
 			>
 				{#if message.routerMetadata && (message.routerMetadata.route || message.routerMetadata.model || message.routerMetadata.provider) && (!isLast || !loading)}
 					<div
-						class="mr-2 flex items-center gap-1.5 truncate whitespace-nowrap text-[.65rem] text-gray-400 dark:text-gray-400 dark:opacity-50 sm:text-xs"
+						class="mr-1 flex items-center gap-1.5 truncate whitespace-nowrap text-xs text-gemini-onSurfaceVariant/60 sm:text-xs"
 					>
 						{#if message.routerMetadata.route && message.routerMetadata.model}
 							<span class="truncate rounded bg-gray-100 px-1 font-mono dark:bg-gray-800 sm:py-px">
@@ -374,19 +372,19 @@
 						onClick={() => {
 							isCopied = true;
 						}}
-						classNames="btn rounded-sm p-1 text-sm text-gray-400 hover:text-gray-500 focus:ring-0 dark:text-gray-400 dark:hover:text-gray-300"
+						classNames="btn rounded-full p-1.5 text-sm text-gemini-onSurfaceVariant hover:bg-gemini-hoverBg focus:ring-0 dark:text-gemini-onSurfaceVariant dark:hover:bg-gemini-hoverBg"
 						value={contentWithoutThink}
-						iconClassNames="text-xs"
+						iconClassNames="size-3.5"
 					/>
 					<button
-						class="btn rounded-sm p-1 text-xs text-gray-400 hover:text-gray-500 focus:ring-0 dark:text-gray-400 dark:hover:text-gray-300"
+						class="btn rounded-full p-1.5 text-xs text-gemini-onSurfaceVariant hover:bg-gemini-hoverBg focus:ring-0 dark:text-gemini-onSurfaceVariant dark:hover:bg-gemini-hoverBg"
 						title="Retry"
 						type="button"
 						onclick={() => {
 							onretry?.({ id: message.id });
 						}}
 					>
-						<CarbonRotate360 />
+						<CarbonRotate360 class="size-3.5" />
 					</button>
 					{#if alternatives.length > 1 && editMsdgId === null}
 						<Alternatives
@@ -406,34 +404,35 @@
 {/if}
 {#if message.from === "user"}
 	<div
-		class="group relative {alternatives.length > 1 && editMsdgId === null
-			? 'mb-7'
-			: ''} w-full items-start justify-start gap-4"
+		class="group relative flex w-full flex-row-reverse items-start justify-end gap-2 {alternatives.length >
+			1 && editMsdgId === null
+			? 'mb-5'
+			: ''}"
 		data-message-id={message.id}
 		data-message-type="user"
 		role="presentation"
 		onclick={() => (isTapped = !isTapped)}
 		onkeydown={() => (isTapped = !isTapped)}
 	>
-		<div class="flex w-full flex-col gap-2">
+		<div class="flex w-full flex-col items-end gap-1">
 			{#if message.files?.length}
-				<div class="flex w-fit gap-4 px-5">
+				<div class="flex w-fit gap-2">
 					{#each message.files as file}
 						<UploadedFile {file} canClose={false} />
 					{/each}
 				</div>
 			{/if}
 
-			<div class="flex w-full flex-row flex-nowrap">
+			<div class="flex w-full flex-row flex-nowrap justify-end">
 				{#if !editMode}
 					<p
-						class="disabled w-full appearance-none whitespace-break-spaces text-wrap break-words bg-inherit px-5 py-3.5 text-gray-500 dark:text-gray-400"
+						class="disabled max-w-[calc(100%-4rem)] appearance-none whitespace-break-spaces text-wrap break-words rounded-3xl bg-gemini-surfaceContainerHigh px-4 py-3 text-base leading-relaxed text-gemini-onSurface dark:bg-gemini-surfaceContainerHigh"
 					>
 						{message.content.trim()}
 					</p>
 				{:else}
 					<form
-						class="mt-3 flex w-full flex-col"
+						class="mt-2 flex w-full flex-col"
 						bind:this={editFormEl}
 						onsubmit={(e) => {
 							e.preventDefault();
@@ -442,7 +441,7 @@
 						}}
 					>
 						<textarea
-							class="w-full whitespace-break-spaces break-words rounded-xl bg-gray-100 px-5 py-3.5 text-gray-500 *:h-max focus:outline-none dark:bg-gray-800 dark:text-gray-400"
+							class="w-full whitespace-break-spaces break-words rounded-2xl bg-gray-100 px-4 py-3 *:h-max focus:outline-none dark:bg-gemini-surfaceContainerHigh dark:text-gemini-onSurface"
 							rows="5"
 							bind:this={editContentEl}
 							value={message.content.trim()}
@@ -474,7 +473,9 @@
 					</form>
 				{/if}
 			</div>
-			<div class="absolute -bottom-4 ml-3.5 flex w-full items-center gap-1.5">
+			<div
+				class="mt-1 flex w-full items-center justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100"
+			>
 				{#if alternatives.length > 1 && editMsdgId === null}
 					<Alternatives
 						{message}
@@ -485,7 +486,7 @@
 				{/if}
 				{#if (alternatives.length > 1 && editMsdgId === null) || (!loading && !editMode)}
 					<button
-						class="hidden h-5 cursor-pointer items-center gap-1 rounded-md px-1.5 py-0.5 text-xs text-gray-400 group-hover:flex hover:flex hover:bg-gray-100 hover:text-gray-500 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-300 lg:-right-2"
+						class="flex h-7 cursor-pointer items-center gap-1 rounded-full px-2.5 py-0.5 text-xs text-gemini-onSurfaceVariant hover:bg-gemini-hoverBg dark:text-gemini-onSurfaceVariant dark:hover:bg-gemini-hoverBg"
 						title="Edit"
 						type="button"
 						onclick={() => {
@@ -493,13 +494,13 @@
 							editMsdgId = message.id;
 						}}
 					>
-						<CarbonPen />
+						<CarbonPen class="size-3.5" />
 						Edit
 					</button>
 					<button
-						class="hidden h-5 cursor-pointer items-center gap-1 rounded-md px-1.5 py-0.5 text-xs group-hover:flex hover:flex hover:bg-gray-100 dark:hover:bg-gray-800 lg:-right-2 {isUserMsgCopied
+						class="flex h-7 cursor-pointer items-center gap-1 rounded-full px-2.5 py-0.5 text-xs text-gemini-onSurfaceVariant hover:bg-gemini-hoverBg dark:text-gemini-onSurfaceVariant dark:hover:bg-gemini-hoverBg {isUserMsgCopied
 							? 'text-green-500 dark:text-green-400'
-							: 'text-gray-400 hover:text-gray-500 dark:text-gray-400 dark:hover:text-gray-300'}"
+							: ''}"
 						title="Copy to clipboard"
 						type="button"
 						onclick={async () => {
@@ -526,10 +527,10 @@
 						}}
 					>
 						{#if isUserMsgCopied}
-							<CarbonCheckmark class="scale-[0.85]" />
+							<CarbonCheckmark class="size-3.5" />
 							Copied
 						{:else}
-							<CarbonCopy class="scale-[0.85]" />
+							<CarbonCopy class="size-3.5" />
 							Copy
 						{/if}
 					</button>
